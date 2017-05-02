@@ -26,14 +26,13 @@
         <div class="jumbotron">
             <h1>
 Radio X Is Boring</h1></div>
-        <p>
+        <!-- <p>
             Here's why
             <%=JSON.stringify(vals)%>
-        </p>
+        </p> -->
     </div>
 
-    <div id="viz"></div>
-    <svg width="960" height="500"></svg>
+    <div id="graph"></div>
 
     <script src="http://d3js.org/d3.v3.min.js"></script>
 
@@ -46,12 +45,13 @@ Radio X Is Boring</h1></div>
                 bottom: 70,
                 left: 40
             },
-            width = 600 - margin.left - margin.right,
-            height = 300 - margin.top - margin.bottom;
+            width = 1500 - margin.left - margin.right,
+            height = 500 - margin.top - margin.bottom;
 
         // Parse the date / time
         var parseDate = d3.time.format("%Y").parse;
 
+        // var x = d3.time.scale()range([0, width]);
         var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
 
         var y = d3.scale.linear().range([height, 0]);
@@ -72,7 +72,6 @@ Radio X Is Boring</h1></div>
             .append("g")
             .attr("transform",
                 "translate(" + margin.left + "," + margin.top + ")");
-
 
         data.forEach(function(d) {
             d._id = parseDate(d._id);
@@ -104,7 +103,7 @@ Radio X Is Boring</h1></div>
             .attr("y", 6)
             .attr("dy", ".71em")
             .style("text-anchor", "end")
-            .text("Value ($)");
+            .text("Count");
 
         svg.selectAll("bar")
             .data(data)

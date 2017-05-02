@@ -68,7 +68,7 @@ router.use(function (req,res,next) {
 });
 
 router.get("/",function(req,res){
-  collection.aggregate([{'$match': {'song_year': {'$ne': ''}}},{'$match': {'song_year': {'$ne': 0}}},{ $group: {"_id": "$song_year", "count":{ $sum: 1}}}],function(e,vals){
+  collection.aggregate([{'$match': {'song_year': {'$ne': ''}}},{'$match': {'song_year': {'$ne': 0}}},{ $group: {"_id": "$song_year", "count":{ $sum: 1}}}, { $sort: { '_id' : 1 }}],function(e,vals){
       // console.log(vals);
       res.render(path + "index.ejs",{vals:vals});
   });
