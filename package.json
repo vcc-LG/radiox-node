@@ -1,0 +1,15 @@
+{
+  "name": "radio-x-viz",
+  "version": "0.0.1",
+  "scripts": {
+    "start": "node Server.js"
+  },
+  "dependencies": {
+    "d3": "latest",
+    "ejs": "latest",
+    "express": "latest",
+    "fs": "latest",
+    "mongodb": "^2.2.26",
+    "monk": "^4.0.0"
+  }
+}
