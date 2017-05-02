@@ -5,6 +5,7 @@
     "start": "node Server.js"
   },
   "dependencies": {
+    "async": "^2.4.0",
     "d3": "latest",
     "ejs": "latest",
     "express": "latest",

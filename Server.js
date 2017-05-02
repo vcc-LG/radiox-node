@@ -3,7 +3,8 @@ var app = express();
 var router = express.Router();
 var path = __dirname + '/views/';
 var d3 = require("d3");
-var fs = require("fs")
+var fs = require("fs");
+var async = require('async');
 // var MongoClient = require('mongodb').MongoClient;
 
 const db = require('monk')('localhost/radio_database')
@@ -60,19 +61,55 @@ app.set('view engine', 'ejs');  //tell Express we're using EJS
 // queryCollection(collection, function(result){
 //     console.log(result);
 // });
-
+//db.getCollection('radio_collection').aggregate([ {'$match': {'song_year': {'$ne': ''}}},{'$match': {'song_year': {'$ne': 0}}},{ $group: {"_id": "$song_year", "count":{ $sum: 1}}}, { $sort: { '_id' : 1 }} ])
 
 router.use(function (req,res,next) {
   console.log("/" + req.method);
   next();
 });
 
-router.get("/",function(req,res){
-  collection.aggregate([{'$match': {'song_year': {'$ne': ''}}},{'$match': {'song_year': {'$ne': 0}}},{ $group: {"_id": "$song_year", "count":{ $sum: 1}}}, { $sort: { '_id' : 1 }}],function(e,vals){
-      // console.log(vals);
-      res.render(path + "index.ejs",{vals:vals});
-  });
+// router.get("/",function(req,res){
+//   collection.aggregate([{'$match': {'song_year': {'$ne': ''}}},{'$match': {'song_year': {'$ne': 0}}},{ $group: {"_id": "$song_year", "count":{ $sum: 1}}}, { $sort: { '_id' : 1 }}],function(e,vals){
+//       // console.log(vals);
+//       res.render(path + "index.ejs",{vals:vals});
+//   });
+// });
+
+
+router.get("/", function(req, res, next) {
+      var locals = {};
+      var tasks = [
+          // Load users
+          // var year_count =
+          function(callback) {
+              collection.aggregate([{'$match': {'song_year': {'$ne': ''}}},{'$match': {'song_year': {'$ne': 0}}},
+              { $group: {"_id": "$song_year", "count":{ $sum: 1}}},
+              { $sort: { '_id' : 1 }}],function(err, year_count) {
+                  if (err) return callback(err);
+                  locals.year_count = year_count;
+                  // console.log(locals.year_count);
+                  callback();
+              });
+          },
+          // Load colors
+          function(callback) {
+            collection.aggregate([ { $group: {"_id": "$title", "count":{ $sum: 1}}},
+            { $sort: { 'count' : -1 }} ],function(err, song_count) {
+                if (err) return callback(err);
+                locals.song_count = song_count;
+                callback();
+            });
+          }
+      ];
+      // console.log(locals.song_count);
+      async.parallel(tasks, function(err) { //This function gets called after the two tasks have called their "task callbacks"
+          if (err) return next(err); //If an error occurred, let express handle it by calling the `next` function
+          // Here `locals` will be an object with `users` and `colors` keys
+          // Example: `locals = {users: [...], colors: [...]}`
+          res.render(path + 'index.ejs', {vals:locals.year_count});
+      });
 });
+
 
 router.get("/about",function(req,res){
   res.sendFile(path + "about.html");
