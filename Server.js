@@ -91,10 +91,10 @@ router.get("/", function(req, res, next) {
                   callback();
               });
           },
-          // Load colors
+
           function(callback) {
-            collection.aggregate([ { $group: {"_id": "$title", "count":{ $sum: 1}}},
-            { $sort: { 'count' : -1 }} ],function(err, song_count) {
+            collection.aggregate([ { $group: {"_id":{ $concat: [ "$artist", " - ", "$title" ] },
+            "count":{ $sum: 1}}}, { $sort: { 'count' : -1 }}, { $limit : 30 } ],function(err, song_count) {
                 if (err) return callback(err);
                 locals.song_count = song_count;
                 callback();
@@ -106,7 +106,7 @@ router.get("/", function(req, res, next) {
           if (err) return next(err); //If an error occurred, let express handle it by calling the `next` function
           // Here `locals` will be an object with `users` and `colors` keys
           // Example: `locals = {users: [...], colors: [...]}`
-          res.render(path + 'index.ejs', {vals:locals.year_count});
+          res.render(path + 'index.ejs', {vals:locals});
       });
 });
 
